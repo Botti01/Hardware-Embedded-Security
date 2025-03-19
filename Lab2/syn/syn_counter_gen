@@ -1,0 +1,7 @@
+read_liberty -lib ../sky130_fd_sc_hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+read_verilog -defer ../src/counter_gen.v
+chparam -set NBIT 8
+synth -top counter_gen
+dfflibmap -liberty ../sky130_fd_sc_hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+abc -liberty ../sky130_fd_sc_hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+write_verilog ./counter_gen.v
