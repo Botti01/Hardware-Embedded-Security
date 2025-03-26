@@ -1,0 +1,43 @@
+module counter_gen
+  #(
+    parameter NBIT = 4
+  )
+  (
+    input                clk,
+    input                rstn,
+    output reg [NBIT-1:0] out
+  );
+
+  // -----------------------------------------------------------
+  // Main counter functionality
+  // -----------------------------------------------------------
+  always @ (posedge clk, negedge rstn) begin
+    if (!rstn)
+      out <= 0;
+    else
+      out <= out + 1;
+  end
+
+  // -----------------------------------------------------------
+  // Watermark / Dummy Logic
+  // -----------------------------------------------------------
+  // A simple 3-bit shift register with an inverted feedback tap.
+  // Synthesis attributes like (* keep = "true" *) or (* dont_touch = "true" *)
+  // help prevent the tool from removing or altering it.
+  
+  (* keep = "true" *) reg [2:0] watermark_shift = 3'b101;
+  
+  always @ (posedge clk or negedge rstn) begin
+    if (!rstn) begin
+      watermark_shift <= 3'b101;    // Initial pattern
+    end else begin
+      // Shift left and invert the last bit as feedback
+      watermark_shift <= {watermark_shift[1:0], ~watermark_shift[2]};
+    end
+  end
+  
+  // Optionally, create a wire that depends on the shift register’s state.
+  // This “signature” can be checked in the synthesized netlist or GDS.
+  (* keep = "true" *) wire watermark_detect = (watermark_shift == 3'b111);
+
+endmodule
